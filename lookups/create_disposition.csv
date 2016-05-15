@@ -1,0 +1,7 @@
+createDispo,createDisposition
+0x0,"None"
+0x1,"Create New"
+0x2,"Create Always"
+0x3,"Open Existing"
+0x4,"Open Always"
+0x5,"Truncate Existing"
