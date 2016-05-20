@@ -2,28 +2,17 @@
 import argparse
 import subprocess
 import time
+import xml.etree.ElementTree as etree
 
 def set_cepa_config(audit_endpoint):
     cepa_config_file='/opt/CEEPack/emc_cee_config.xml'
-    filedata = None
+    tree = etree.parse(cepa_config_file)
 
-    with open(cepa_config_file, 'r') as file :
-      filedata = file.read()
+    audit_node = tree.find('CEPP/Audit/Configuration')
+    audit_node.find('Enabled').text = "1"
+    audit_node.find('EndPoint').text = audit_endpoint
 
-    # Replace the target string
-    #this is hack way ot update xml file... probably should edit with xml tool
-    #Todo: update with proper xml update
-    current_config = '<EndPoint></EndPoint>'
-    new_config = '<EndPoint>{0}</EndPoint>'.format(audit_endpoint)
-    filedata = filedata.replace(current_config,new_config,1)
-    filedata = filedata.replace('>0<','>1<',1)
-    filedata = filedata.replace('<Debug>0</Debug>','<Debug>1</Debug>')
-    filedata = filedata.replace('<Verbose>0</Verbose>','<Verbose>1</Verbose>')
-
-    # Write the file out again
-    with open(cepa_config_file, 'w') as file:
-      file.write(filedata)
-
+    tree.write(cepa_config_file)
 
 def main():
     parser = argparse.ArgumentParser()
