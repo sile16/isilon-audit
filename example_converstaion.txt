@@ -1,0 +1,124 @@
+PUT / HTTP/1.1
+User-Agent: PycURL/7.19.3.1 libcurl/7.21.1 OpenSSL/1.0.1p zlib/1.2.8
+Host: 192.168.142.161:12228
+Accept: */*
+Content-Length: 217
+Content-Type: text/xml
+
+<CheckFileRequest><Args action="9" sourceID="2" sourceIP="192.168.142.151" name="aQBzAGkAMQA1ADAALQBhAHUAZABpAHQA"><Cluster id="000c29b7c6273590c4563e21d8421c2ebcdb" name="aQBzAGkAMQA1ADAA"/></Args></CheckFileRequest>HTTP/1.1 200 OK
+Server: EMC CEE Server
+Content-Length: 342
+Content-Type: text/xml; charset=utf-8
+Connection: keep-alive
+
+<CheckFileResponse status="0x16" ceeVersion="7.1.0">
+  <HeartBeatResponse ceeVersion="7.1.0" dtdVersion="2.1.0">
+    <CEPPHeartBeatResponse>
+    <CEPPCapabilities>
+      <Protocols CIFS="1" NFS="1" HDFS="0" />
+      <Partner multiplicity="1" />
+    </CEPPCapabilities>
+    </CEPPHeartBeatResponse>
+  </HeartBeatResponse>
+</CheckFileResponse>
+PUT / HTTP/1.1
+User-Agent: PycURL/7.19.3.1 libcurl/7.21.1 OpenSSL/1.0.1p zlib/1.2.8
+Host: 192.168.142.161:12228
+Accept: */*
+Content-Length: 217
+Content-Type: text/xml
+
+<CheckFileRequest><Args action="9" sourceID="2" sourceIP="192.168.142.151" name="aQBzAGkAMQA1ADAALQBhAHUAZABpAHQA"><Cluster id="000c29b7c6273590c4563e21d8421c2ebcdb" name="aQBzAGkAMQA1ADAA"/></Args></CheckFileRequest>HTTP/1.1 200 OK
+Server: EMC CEE Server
+Content-Length: 341
+Content-Type: text/xml; charset=utf-8
+Connection: keep-alive
+
+<CheckFileResponse status="0x0" ceeVersion="7.1.0">
+  <HeartBeatResponse ceeVersion="7.1.0" dtdVersion="2.1.0">
+    <CEPPHeartBeatResponse>
+    <CEPPCapabilities>
+      <Protocols CIFS="1" NFS="1" HDFS="0" />
+      <Partner multiplicity="1" />
+    </CEPPCapabilities>
+    </CEPPHeartBeatResponse>
+  </HeartBeatResponse>
+</CheckFileResponse>
+PUT / HTTP/1.1
+User-Agent: PycURL/7.19.3.1 libcurl/7.21.1 OpenSSL/1.0.1p zlib/1.2.8
+Host: 192.168.142.161:12228
+Accept: */*
+Content-Length: 217
+Content-Type: text/xml
+
+<CheckFileRequest><Args action="9" sourceID="2" sourceIP="192.168.142.151" name="aQBzAGkAMQA1ADAALQBhAHUAZABpAHQA"><Cluster id="000c29b7c6273590c4563e21d8421c2ebcdb" name="aQBzAGkAMQA1ADAA"/></Args></CheckFileRequest>HTTP/1.1 200 OK
+Server: EMC CEE Server
+Content-Length: 341
+Content-Type: text/xml; charset=utf-8
+Connection: keep-alive
+
+<CheckFileResponse status="0x0" ceeVersion="7.1.0">
+  <HeartBeatResponse ceeVersion="7.1.0" dtdVersion="2.1.0">
+    <CEPPHeartBeatResponse>
+    <CEPPCapabilities>
+      <Protocols CIFS="1" NFS="1" HDFS="0" />
+      <Partner multiplicity="1" />
+    </CEPPCapabilities>
+    </CEPPHeartBeatResponse>
+  </HeartBeatResponse>
+</CheckFileResponse>
+PUT / HTTP/1.1
+User-Agent: PycURL/7.19.3.1 libcurl/7.21.1 OpenSSL/1.0.1p zlib/1.2.8
+Host: 192.168.142.161:12228
+Accept: */*
+Content-Length: 602
+Content-Type: text/xml
+
+<CheckFileRequest><Args action="11" sourceID="2" sourceIP="192.168.142.151" name="XABcAGkAcwBpADEANQAwAC0AYQB1AGQAaQB0AFwAbwBuAGUAZgBzACQAXABpAGYAcwA=" protocol="0"><Cluster id="000c29b7c6273590c4563e21d8421c2ebcdb" name="aQBzAGkAMQA1ADAA"/><Zone id="1" name="UwB5AHMAdABlAG0A"/></Args><EventArgs eventType="8192" serverName="aQBzAGkAMQA1ADAALQBhAHUAZABpAHQA" userId="1000000" timeStampMicroSeconds="266451" desiredAccess="0x100081" ntStatus="0x0" timeStamp="1464015244" userSid="S-1-5-21-1530579545-3719778891-2817182717-500" clientIP="192.168.142.20" createDispo="0x1"></EventArgs></CheckFileRequest>HTTP/1.1 200 OK
+Server: EMC CEE Server
+Content-Length: 111
+Content-Type: text/xml; charset=utf-8
+Connection: keep-alive
+
+<CheckFileResponse status="0x0" ceeVersion="7.1.0">
+  <EventResponse auditStatus="0x0" />
+</CheckFileResponse>
+PUT / HTTP/1.1
+User-Agent: PycURL/7.19.3.1 libcurl/7.21.1 OpenSSL/1.0.1p zlib/1.2.8
+Host: 192.168.142.161:12228
+Accept: */*
+Content-Length: 602
+Content-Type: text/xml
+
+<CheckFileRequest><Args action="11" sourceID="2" sourceIP="192.168.142.151" name="XABcAGkAcwBpADEANQAwAC0AYQB1AGQAaQB0AFwAbwBuAGUAZgBzACQAXABpAGYAcwA=" protocol="0"><Cluster id="000c29b7c6273590c4563e21d8421c2ebcdb" name="aQBzAGkAMQA1ADAA"/><Zone id="1" name="UwB5AHMAdABlAG0A"/></Args><EventArgs eventType="8192" serverName="aQBzAGkAMQA1ADAALQBhAHUAZABpAHQA" userId="1000000" timeStampMicroSeconds="268719" desiredAccess="0x100081" ntStatus="0x0" timeStamp="1464015244" userSid="S-1-5-21-1530579545-3719778891-2817182717-500" clientIP="192.168.142.20" createDispo="0x1"></EventArgs></CheckFileRequest>HTTP/1.1 200 OK
+Server: EMC CEE Server
+Content-Length: 111
+Content-Type: text/xml; charset=utf-8
+Connection: keep-alive
+
+<CheckFileResponse status="0x0" ceeVersion="7.1.0">
+  <EventResponse auditStatus="0x0" />
+</CheckFileResponse>
+PUT / HTTP/1.1
+User-Agent: PycURL/7.19.3.1 libcurl/7.21.1 OpenSSL/1.0.1p zlib/1.2.8
+Host: 192.168.142.161:12228
+Accept: */*
+Content-Length: 217
+Content-Type: text/xml
+
+<CheckFileRequest><Args action="9" sourceID="2" sourceIP="192.168.142.151" name="aQBzAGkAMQA1ADAALQBhAHUAZABpAHQA"><Cluster id="000c29b7c6273590c4563e21d8421c2ebcdb" name="aQBzAGkAMQA1ADAA"/></Args></CheckFileRequest>HTTP/1.1 200 OK
+Server: EMC CEE Server
+Content-Length: 341
+Content-Type: text/xml; charset=utf-8
+Connection: keep-alive
+
+<CheckFileResponse status="0x0" ceeVersion="7.1.0">
+  <HeartBeatResponse ceeVersion="7.1.0" dtdVersion="2.1.0">
+    <CEPPHeartBeatResponse>
+    <CEPPCapabilities>
+      <Protocols CIFS="1" NFS="1" HDFS="0" />
+      <Partner multiplicity="1" />
+    </CEPPCapabilities>
+    </CEPPHeartBeatResponse>
+  </HeartBeatResponse>
+</CheckFileResponse>
