@@ -9,7 +9,7 @@ import traceback
 import xml.etree.ElementTree as ET
 import defusedxml.ElementTree as defusedET
 import pylru
-
+import base64
 
 import falcon
 from wsgiref import simple_server
@@ -21,7 +21,7 @@ class UserEventCount(object):
     triggers over a number of buckets.
     """
 
-    def __init__(self,file_cache_count = 200,theshold=1000,buckets=60):
+    def __init__(self,file_cache_count = 200,threshold=1000,buckets=60):
         self.file_cache = pylru.lrucache(file_cache_count)
         self.buckets = buckets
         self.threshold = threshold
@@ -60,7 +60,7 @@ class UserEventCount(object):
 
 
 class CryptoLockerDetect(object):
-    def __init__(self,email="sile16@gmail.com",users=1000):
+    def __init__(self,email="sile16@gmail.com",user_count=1000):
         """
         email alert email
         users number of users to track
@@ -70,21 +70,43 @@ class CryptoLockerDetect(object):
         windows = number of buckets to track, window in seconds = window * bucket
         """
 
-        user_cache = pylru.lrucache(users)
+        self.user_cache = pylru.lrucache(user_count)
 
 
 
     def parse_check_event(self,check_event_xml):
         #Check Event can have mulitple events
+        args = check_event_xml[0]
         eventargs = check_event_xml[1]
-        print(eventargs.attrib)
-        print(eventargs.text)
 
-        if eventargs.atrrib['eventType'] == '2':
-            timeStamp = eventargs.atrrib['timeStamp']
+
+        #print(ET.dump(check_event_xml))
+        path = base64.b64decode(args.attrib['name']).decode('utf-16-le')
+
+        if 'bytesWritten' in eventargs.attrib and int(eventargs.attrib['bytesWritten']) > 0:
+            print(path)
+            print(eventargs.attrib)
+            print(eventargs.text)
+            print(eventargs.tail)
+
+
+        if eventargs.attrib['eventType'] == '2':
+            timeStamp = eventargs.attrib['timeStamp']
             path = eventargs.text
-            sid = eventargs.atrrib['userSid']
+            sid = eventargs.attrib['userSid']
+
             user = self.user_cache.get(sid)
+            if user is None:
+                #User not in cache, create a new user
+                user = UserEventCount()
+
+            if user.new_event_over_threadhold(path):
+                #toodo
+                #Send Alert!!!
+                pass
+
+            self.user_cache[sid] = user
+
 
 
 
@@ -99,7 +121,7 @@ class AuditResource(object):
         #logging
         self.logger = logging.getLogger('isilonaudit.' + __name__)
         self.cld = CryptoLockerDetect()
-        self.logger.info()
+        self.logger.info("Starting")
 
 
     def on_get(self, req, resp):
@@ -130,7 +152,7 @@ class AuditResource(object):
             if args.attrib['action'] == '11':
                 resp.status = falcon.HTTP_200
                 logging.info("checkevent")
-                self.cd.parse_event(content)
+                self.cld.parse_check_event(content)
                 resp.body = self.xml_response_text
 
             elif args.attrib['action'] == '9':
@@ -142,7 +164,8 @@ class AuditResource(object):
                logging.error("Request unknown action: {0}".format(args.attrib['action']))
 
         except Exception as ex:
-            self.logger.error(ex)
+            self.logger.error(traceback.print_exc())
+
 
 app = falcon.API()
 app.add_route('/isilon-audit', AuditResource())
