@@ -3,9 +3,8 @@ Isilon Example Auditing Script
 '''
 
 import sys
-import logging
+import loggings
 import traceback
-#import urllib
 import xml.etree.ElementTree as ET
 import defusedxml.ElementTree as defusedET
 import pylru
@@ -71,6 +70,7 @@ class CryptoLockerDetect(object):
         """
 
         self.user_cache = pylru.lrucache(user_count)
+        self.logger = logging.getLogger()
 
 
 
@@ -84,10 +84,10 @@ class CryptoLockerDetect(object):
         path = base64.b64decode(args.attrib['name']).decode('utf-16-le')
 
         if 'bytesWritten' in eventargs.attrib and int(eventargs.attrib['bytesWritten']) > 0:
-            print(path)
-            print(eventargs.attrib)
-            print(eventargs.text)
-            print(eventargs.tail)
+            self.logger.debug(path)
+            self.logger.debug(eventargs.attrib)
+            self.logger.debug(eventargs.text)
+            self.logger.debug(eventargs.tail)
 
 
         if eventargs.attrib['eventType'] == '2':
@@ -119,7 +119,9 @@ class AuditResource(object):
 
     def __init__(self):
         #logging
-        self.logger = logging.getLogger('isilonaudit.' + __name__)
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        self.logger = logging.getLogger()
+
         self.cld = CryptoLockerDetect()
         self.logger.info("Starting")
 
