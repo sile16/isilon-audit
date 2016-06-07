@@ -1,6 +1,6 @@
 import asyncio
 import argparse
-from aiohttp import ClientSession
+import aiohttp
 import signal
 import pprint
 import cProfile
@@ -46,7 +46,7 @@ class AsyncBench(object):
         self.stats[key] = self.stats.get(key,0) + value
 
 
-    async def check_file(self,sem, url, i):
+    async def check_file(self,sem,session, url, i):
         # getter function with semaphore
         async with sem:
             #name = encode_name(base_name + str(i))
@@ -58,7 +58,7 @@ class AsyncBench(object):
 
             try:
                 start_time = time.time()
-                async with ClientSession() as session:
+                with aiohttp.Timeout(10):
                     async with session.put(url,data=data) as response:
                         await response.read()
                         self.add_stat("data",time.time() - start_time)
@@ -73,7 +73,7 @@ class AsyncBench(object):
 
 
     async def send_heartbeat(self,url):
-        async with ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
             async with session.put(url,data=xml_heartbeat) as response:
                 delay = response.headers.get("DELAY")
                 date = response.headers.get("DATE")
@@ -81,7 +81,7 @@ class AsyncBench(object):
                 return await response.read()
 
 
-    async def run_queries(self, loop, args):
+    async def run_queries(self, session, loop, args):
         url = "http://{}:{}/{}".format(args.ip,args.port,args.path)
         tasks = []
         # create instance of Semaphore
@@ -89,11 +89,12 @@ class AsyncBench(object):
 
         for i in range(args.count):
             # pass Semaphore to every PUT request
-            task = asyncio.ensure_future(self.check_file(sem, url, i))
+            task = asyncio.ensure_future(self.check_file(sem, session, url, i))
             tasks.append(task)
 
         responses = asyncio.gather(*tasks)
         await responses
+
 
 
     async def run_heartbeat(self,loop,args,heartbeat_stats):
@@ -103,8 +104,9 @@ class AsyncBench(object):
 def main(args):
     bench = AsyncBench()
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(bench.run_queries(loop, args))
-    loop.run_until_complete(future)
+    with aiohttp.ClientSession(loop=loop) as session:
+        future = asyncio.ensure_future(bench.run_queries(session, loop, args))
+        loop.run_until_complete(future)
     pprint.pprint(bench.stats)
 
 
