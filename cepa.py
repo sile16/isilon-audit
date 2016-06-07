@@ -3,7 +3,7 @@ Isilon Example Auditing Script
 '''
 
 import sys
-import loggings
+import logging
 import traceback
 import xml.etree.ElementTree as ET
 import defusedxml.ElementTree as defusedET
@@ -103,7 +103,7 @@ class CryptoLockerDetect(object):
             if user.new_event_over_threadhold(path):
                 #toodo
                 #Send Alert!!!
-                pass
+                self.logger.warning("User over threashold!!")
 
             self.user_cache[sid] = user
 
@@ -119,7 +119,7 @@ class AuditResource(object):
 
     def __init__(self):
         #logging
-        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         self.logger = logging.getLogger()
 
         self.cld = CryptoLockerDetect()
@@ -142,10 +142,12 @@ class AuditResource(object):
          newPartialPath_str,
          eventArgs_tag)"""
 
+
+        raw_content = req.stream.read()
         try:
-            content = defusedET.fromstring(req.stream.read())
+            content = defusedET.fromstring(raw_content)
         except Exception as ex:
-            raise falcon.HTTPBadRequest('Bad request', str(ex))
+            raise falcon.HTTPBadRequest('Bad request: {}'.format(raw_content), str(ex))
 
         try:
             resp.content_type = 'text/xml; charset=utf-8'
@@ -153,7 +155,7 @@ class AuditResource(object):
 
             if args.attrib['action'] == '11':
                 resp.status = falcon.HTTP_200
-                logging.info("checkevent")
+                logging.debug("checkevent")
                 self.cld.parse_check_event(content)
                 resp.body = self.xml_response_text
 
@@ -167,6 +169,8 @@ class AuditResource(object):
 
         except Exception as ex:
             self.logger.error(traceback.print_exc())
+            self.logger.error('Request: {}'.format(raw_content))
+
 
 
 app = falcon.API()
