@@ -46,20 +46,20 @@ class AsyncBench(object):
         self.stats[key] = self.stats.get(key,0) + value
 
 
-    async def check_file(self,sem,session, url, i):
+    async def check_file(self,sem, url, i):
         # getter function with semaphore
         async with sem:
-            #name = encode_name(base_name + str(i))
-            ##name = base_name_encoded + encode_name(str(i))
-            #sid = "asdfkj23lk-asdfk234-sfasdfkj3-" # + str(i)
-            #timestamp = str(2342342)
-            #data = xml_checkfile.format(name,timestamp,sid)
-            data = self.static_data
+            name = encode_name(base_name + str(i))
+            #name = base_name_encoded + encode_name(str(i))
+            sid = "asdfkj23lk-asdfk234-sfasdfkj3-" # + str(i)
+            timestamp = str(2342342)
+            data = xml_checkfile.format(name,timestamp,sid)
+            #data = self.static_data
 
             try:
                 start_time = time.time()
-                with aiohttp.Timeout(10):
-                    async with session.put(url,data=data) as response:
+                with aiohttp.Timeout(5):
+                    async with aiohttp.put(url,data=data) as response:
                         await response.read()
                         self.add_stat("data",time.time() - start_time)
                         #self.add_stat("headers",response.elapsed.total_seconds())
@@ -72,16 +72,7 @@ class AsyncBench(object):
                 print(traceback.print_exc())
 
 
-    async def send_heartbeat(self,url):
-        async with aiohttp.ClientSession() as session:
-            async with session.put(url,data=xml_heartbeat) as response:
-                delay = response.headers.get("DELAY")
-                date = response.headers.get("DATE")
-                print("{}:{} with delay {}".format(date, response.url, delay))
-                return await response.read()
-
-
-    async def run_queries(self, session, loop, args):
+    async def run_queries(self, loop, args):
         url = "http://{}:{}/{}".format(args.ip,args.port,args.path)
         tasks = []
         # create instance of Semaphore
@@ -89,7 +80,7 @@ class AsyncBench(object):
 
         for i in range(args.count):
             # pass Semaphore to every PUT request
-            task = asyncio.ensure_future(self.check_file(sem, session, url, i))
+            task = asyncio.ensure_future(self.check_file(sem, url, i))
             tasks.append(task)
 
         responses = asyncio.gather(*tasks)
@@ -104,9 +95,9 @@ class AsyncBench(object):
 def main(args):
     bench = AsyncBench()
     loop = asyncio.get_event_loop()
-    with aiohttp.ClientSession(loop=loop) as session:
-        future = asyncio.ensure_future(bench.run_queries(session, loop, args))
-        loop.run_until_complete(future)
+
+    future = asyncio.ensure_future(bench.run_queries(loop, args))
+    loop.run_until_complete(future)
     pprint.pprint(bench.stats)
 
 
