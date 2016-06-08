@@ -1,13 +1,12 @@
 import asyncio
 import argparse
 import aiohttp
-import signal
-import pprint
 import cProfile
-import sys
 import base64
 import time
 import traceback
+from stats import Stats
+
 
 xml_checkfile = '''
 <CheckFileRequest>
@@ -36,69 +35,63 @@ base_name_encoded = encode_name(base_name)
 
 
 class AsyncBench(object):
+    def __init__(self,args):
+        self.stats = Stats()
+        self.url = "http://{}:{}/{}".format(args.ip,args.port,args.path)
 
-    def __init__(self):
-        self.stats = {}
-        self.static_data = xml_checkfile.format(base_name_encoded,str(2342342),"asdfasdfa")
+        # create instance of Semaphore
+        self.sem = asyncio.Semaphore(args.threads)
+        self.loop = loop = asyncio.get_event_loop()
+        self.stats = Stats()
+        self.heartbeat_stats = Stats
 
 
-    def add_stat(self,key,value=1):
-        self.stats[key] = self.stats.get(key,0) + value
-
-
-    async def check_file(self,sem, url, i):
+    async def send_command(self, data, stats):
         # getter function with semaphore
-        async with sem:
-            name = encode_name(base_name + str(i))
-            #name = base_name_encoded + encode_name(str(i))
-            sid = "asdfkj23lk-asdfk234-sfasdfkj3-" # + str(i)
-            timestamp = str(2342342)
-            data = xml_checkfile.format(name,timestamp,sid)
-            #data = self.static_data
-
+        async with self.sem:
             try:
                 start_time = time.time()
                 with aiohttp.Timeout(5):
                     async with aiohttp.put(url,data=data) as response:
                         await response.read()
-                        self.add_stat("data",time.time() - start_time)
-                        #self.add_stat("headers",response.elapsed.total_seconds())
-                        self.add_stat("success")
-                        #self.add_stat(response)
+                        stats.add("data",time.time() - start_time)
+                        stats.add("success")
                         return
 
             except Exception as ex:
-                self.add_stat(type(ex).__name__)
+                stats.add(type(ex).__name__)
                 print(traceback.print_exc())
 
-
-    async def run_queries(self, loop, args):
-        url = "http://{}:{}/{}".format(args.ip,args.port,args.path)
-        tasks = []
-        # create instance of Semaphore
-        sem = asyncio.Semaphore(args.threads)
-
+    async def queue_requests(self):
         for i in range(args.count):
-            # pass Semaphore to every PUT request
-            task = asyncio.ensure_future(self.check_file(sem, url, i))
-            tasks.append(task)
+            async with self.sem:
+                name = encode_name(base_name + str(i))
+                sid = "asdfkj23lk-asdfk234-sfasdfkj3-" + str(i)
+                timestamp = str(2342342)
+                data = xml_checkfile.format(name,timestamp,sid)
+                asyncio.ensure_future(self.send_command(data,self.stats))
 
-        responses = asyncio.gather(*tasks)
-        await responses
+
+        self.loop.stop()
 
 
 
-    async def run_heartbeat(self,loop,args,heartbeat_stats):
+
+
+    async def run_heartbeats(self,):
+
+
+        await asyncio.sleep(10):
+            async def queue_heartbeats(self):
+
         return
 
 
-def main(args):
-    bench = AsyncBench()
-    loop = asyncio.get_event_loop()
-
-    future = asyncio.ensure_future(bench.run_queries(loop, args))
-    loop.run_until_complete(future)
-    pprint.pprint(bench.stats)
+    def run(self):
+        asyncio.ensure_future(self.run_heartbeats())
+        asyncio.ensure_future(self.run_queries())
+        self.loop.run_forever()
+        print()
 
 
 if __name__ == '__main__':
@@ -111,11 +104,10 @@ if __name__ == '__main__':
     parser.add_argument('--profile',action='store_true',help='profile the bench app')
     parser.add_argument('--heartbeat-interval',default=10,type=int,help='interval in seconds in between heartbeats')
     parser.add_argument('--nodes',default=10,type=int,help='number of nodes that generate heartbeats')
-
     args = parser.parse_args()
 
     if args.profile:
-        cProfile.runctx("main(args)",globals(),locals())
+        cProfile.runctx("AsyncBench(args).run()",globals(),locals())
     else:
-        main(args)
+        AsyncBench(args).start()
 
