@@ -30,20 +30,19 @@ xml_heartbeat = '''
 def encode_name(name):
     return base64.b64encode(name.encode('utf-16-le')).decode('utf-8')
 
-base_name = "/ifs/asdkfj/asdfkadsf/adsfa/asdf/asdf/"
-base_name_encoded = encode_name(base_name)
-
 
 class AsyncBench(object):
     def __init__(self,args):
         self.stats = Stats()
         self.url = "http://{}:{}/{}".format(args.ip,args.port,args.path)
+        self.base_name = "/ifs/asdkfj/asdfkadsf/adsfa/asdf/asdf/"
 
         # create instance of Semaphore
         self.sem = asyncio.Semaphore(args.threads)
         self.loop = loop = asyncio.get_event_loop()
         self.stats = Stats()
-        self.heartbeat_stats = Stats
+        self.heartbeat_stats = Stats()
+        self.count = 0
 
 
     async def send_command(self, data, stats):
@@ -61,6 +60,12 @@ class AsyncBench(object):
             except Exception as ex:
                 stats.add(type(ex).__name__)
                 print(traceback.print_exc())
+
+            
+            self.count += 1
+            if self.count >= self.args.count:
+                self.loop.stop()
+
 
     async def queue_requests(self):
         for i in range(args.count):
@@ -91,7 +96,8 @@ class AsyncBench(object):
         asyncio.ensure_future(self.run_heartbeats())
         asyncio.ensure_future(self.run_queries())
         self.loop.run_forever()
-        print()
+        self.stats.print()
+        self.heartbeat_stats.print()
 
 
 if __name__ == '__main__':
@@ -100,14 +106,15 @@ if __name__ == '__main__':
     parser.add_argument('--port',default='12228',type=int,help='http listening port')
     parser.add_argument('--path',default='/isilon-audit',help='url path')
     parser.add_argument('--threads',default=8,type=int,help='number of concurrent requests')
-    parser.add_argument('--count',default=5000,type=int,help='number of requests')
+    parser.add_argument('--duration',default=30,type=int,help='number of requests')
+    parser.add_argument('--rate-limit',default=0,type=int,help='max number of requests per/second')
     parser.add_argument('--profile',action='store_true',help='profile the bench app')
-    parser.add_argument('--heartbeat-interval',default=10,type=int,help='interval in seconds in between heartbeats')
+    parser.add_argument('--heartbeat-interval',default=1,type=int,help='interval in seconds in between heartbeats')
     parser.add_argument('--nodes',default=10,type=int,help='number of nodes that generate heartbeats')
     args = parser.parse_args()
 
     if args.profile:
         cProfile.runctx("AsyncBench(args).run()",globals(),locals())
     else:
-        AsyncBench(args).start()
+        AsyncBench(args).run()
 

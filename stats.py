@@ -28,5 +28,9 @@ class Stats(object):
                     self.stats[key] = stat_data
 
     def print(self):
+        """
+
+        :rtype: None
+        """
         self.compute_mean()
         pprint.pprint(self.stats)
